@@ -1,4 +1,4 @@
-name: YARN with yarn.lock no checks
+name: YARN with yarn.lock diff checks
 
 on:
   push:
@@ -25,4 +25,9 @@ jobs:
       - name: Build
         run: |
           yarn install
-          yarn audit --production
+          linesChanged = $(git diff | grep -c -e "^\+.+" -e "^\-.+")
+          # yarn.lock doesn't store versions, so 0 changes
+          if (( linesChanged > 0 )); then
+            echo "yarn.lock dependencies were modified externally"
+            exit 1
+          fi

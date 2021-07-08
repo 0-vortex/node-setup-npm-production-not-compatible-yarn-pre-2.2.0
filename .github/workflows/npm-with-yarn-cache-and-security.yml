@@ -1,4 +1,4 @@
-name: NPM with yarn.lock missing lock
+name: NPM with yarn.lock diff checks
 
 on:
   push:
@@ -24,5 +24,10 @@ jobs:
 
       - name: Build
         run: |
-          npm ci
-          npm audit --production
+          npm install
+          linesChanged = $(git diff | grep -c -e "^\+.+" -e "^\-.+")
+          # yarn.lock doesn't store versions, so 0 changes
+          if (( linesChanged > 0 )); then
+            echo "yarn.lock dependencies were modified externally"
+            exit 1
+          fi
