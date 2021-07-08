@@ -7,7 +7,8 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-with-npm:
+    name: NPM with yarn.lock is not compatible with npm
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,4 +27,24 @@ jobs:
         run: |
           npm ci
           npm audit --production
-          npm test
+
+  build-with-yarn:
+    name: YARN ignoring all server side works just
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          cache: 'yarn'
+
+      - name: Install npm@7
+        run: npm i -g yarn
+
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          yarn audit --production
